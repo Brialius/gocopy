@@ -1,40 +1,48 @@
-VERSION := $(shell git describe --tags --dirty --always --match=v* || echo v0)
+VERSION ?= $(shell git describe --tags --dirty --always --match=v* || echo v0)
 BUILD := $(shell git rev-parse --short HEAD)
 LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
+MODFLAGS=-mod vendor
+BUILDFLAGS=$(MODFLAGS) $(LDFLAGS)
+PROJECTNAME=gocopy
+GOEXE := $(shell go env GOEXE)
+BIN=bin/$(PROJECTNAME)$(GOEXE)
 
 .PHONY: setup
-setup: ## Install all the build and lint dependencies
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint \
+setup: mod-refresh ## Install all the build and lint dependencies
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint \
 	golang.org/x/tools/cmd/cover \
 	github.com/kisielk/errcheck \
-    mvdan.cc/unindent \
     github.com/fzipp/gocyclo
 
 .PHONY: test
 test: ## Run all the tests
-	go test -v ./...
+	go test -v $(BUILDFLAGS) ./...
 
 .PHONY: lint
 lint: ## Run all the linters
 	golangci-lint run ./...
-	gocyclo -over 15 ./
-	errcheck
-	unindent
+	gocyclo -over 15 ./...
+	errcheck ./...
 
 .PHONY: ci
-ci: lint test ## Run all the tests and code checks
+ci: setup lint test build ## Run all the tests and code checks
 
 .PHONY: build
 build: ## Build a version
-	go build $(LDFLAGS) -v
+	go build $(BUILDFLAGS) -o $(BIN)
 
 .PHONY: install
-install: ## Build a version
-	go install $(LDFLAGS) -v
+install: ## Install a binary
+	go install $(BUILDFLAGS)
 
 .PHONY: clean
 clean: ## Remove temporary files
 	go clean
+
+.PHONY: mod-refresh
+mod-refresh: clean ## Refresh modules
+	go mod tidy
+	go mod vendor
 
 .PHONY: version
 version:

@@ -3,8 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
-	"fmt"
-	"gocopy/gocopy"
+	"github.com/Brialius/gocopy/gocopy"
 	"log"
 	"os"
 )
@@ -17,9 +16,11 @@ type Args struct {
 	Verbosity bool
 }
 
-var args = Args{}
-var Version = "dev"
-var Build = "undefined"
+var (
+	args    = Args{}
+	Version = "dev"
+	Build   = "local"
+)
 
 func init() {
 	log.SetFlags(0)
@@ -32,31 +33,8 @@ func init() {
 
 func validateArgs() error {
 	var inputSize int64
-
 	if len(args.From) == 0 || len(args.To) == 0 {
 		return errors.New("input or output file is not defined")
-	} else {
-		if stat, err := os.Stat(args.From); err == nil {
-			inputSize = stat.Size()
-		} else {
-			return fmt.Errorf("input file can't be opened: %s", err)
-		}
-	}
-
-	if args.Offset < 0 {
-		return fmt.Errorf("offset parameter is (%d), but should be >= 0", args.Offset)
-	}
-
-	if args.Offset >= inputSize {
-		return fmt.Errorf("offset (%d) is greater or equal input file size (%d)\n", args.Offset, inputSize)
-	}
-
-	if args.Limit == 0 {
-		return fmt.Errorf("limit parameter is (%d), but should be > 0", args.Limit)
-	}
-
-	if args.Limit == -1 {
-		args.Limit = inputSize
 	}
 
 	if args.Verbosity {
@@ -67,8 +45,8 @@ func validateArgs() error {
 }
 
 func main() {
-	flag.Parse()
 	log.Printf("gocopy %s-%s", Version, Build)
+	flag.Parse()
 	if err := validateArgs(); err != nil {
 		log.Printf("Args validation error: %s\n", err)
 		if args.Verbosity {
