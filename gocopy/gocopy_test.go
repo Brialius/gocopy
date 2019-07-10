@@ -1,29 +1,10 @@
 package gocopy
 
-import "testing"
-
-func TestCopy(t *testing.T) {
-	type args struct {
-		srcPath string
-		dstPath string
-		offset  int64
-		limit   int64
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := Copy(tt.args.srcPath, tt.args.dstPath, tt.args.offset, tt.args.limit); (err != nil) != tt.wantErr {
-				t.Errorf("Copy() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
+import (
+	"bytes"
+	"io"
+	"testing"
+)
 
 func Test_validate(t *testing.T) {
 	type args struct {
@@ -70,6 +51,73 @@ func Test_validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := validate(tt.args.limit, tt.args.inputSize, tt.args.offset); (err != nil) != tt.wantErr {
 				t.Errorf("validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_copyNWithOffset(t *testing.T) {
+	type args struct {
+		src    io.ReaderAt
+		n      int64
+		offset int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int64
+		wantDst string
+		wantErr bool
+	}{
+		{
+			"OK full copy",
+			args{bytes.NewReader([]byte("12345")), 5, 0},
+			5,
+			"12345",
+			false,
+		},
+		{
+			"OK copy offset",
+			args{bytes.NewReader([]byte("12345")), 4, 1},
+			4,
+			"2345",
+			false,
+		},
+		{
+			"OK copy offset",
+			args{bytes.NewReader([]byte("12345")), 3, 1},
+			3,
+			"234",
+			false,
+		},
+		{
+			"OK copy limit",
+			args{bytes.NewReader([]byte("12345")), 3, 0},
+			3,
+			"123",
+			false,
+		},
+		{
+			"Fail copy negative offset",
+			args{bytes.NewReader([]byte{}), 3, -1},
+			0,
+			"",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dst := &bytes.Buffer{}
+			got, err := copyNWithOffset(tt.args.src, dst, tt.args.n, tt.args.offset)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("copyNWithOffset() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("copyNWithOffset() = %v, want %v", got, tt.want)
+			}
+			if gotDst := dst.String(); gotDst != tt.wantDst {
+				t.Errorf("copyNWithOffset() dst = %v, want %v", gotDst, tt.wantDst)
 			}
 		})
 	}

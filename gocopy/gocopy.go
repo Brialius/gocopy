@@ -53,24 +53,29 @@ func Copy(srcPath, dstPath string, offset, limit int64) error {
 	return errRes
 }
 
-func copyNWithOffset(src io.ReadSeeker, dst io.Writer, n, offset int64) (int64, error) {
+func copyNWithOffset(src io.ReaderAt, dst io.Writer, n, offset int64) (int64, error) {
 	var (
 		written int64
 		errRes  error
+		buf     []byte
 	)
 	// 64kb
-	buf := make([]byte, 1024*64)
+	const bufSize = 1024 * 64
 
-	if _, err := src.Seek(offset, io.SeekStart); err != nil {
-		return 0, err
+	if n < bufSize {
+		buf = make([]byte, n)
+	} else {
+		buf = make([]byte, bufSize)
 	}
 
 	bar := pb.StartNew(int(n))
 	bar.Set(pb.Bytes, true)
 	bar.Start()
 
+	sr := io.NewSectionReader(src, offset, n)
+
 	for {
-		nr, er := src.Read(buf)
+		nr, er := sr.Read(buf)
 		if nr > 0 {
 			nw, ew := dst.Write(buf[0:nr])
 			if nw > 0 {
