@@ -1,4 +1,18 @@
 # gocopy
+## Usage
+```
+Usage of gocopy:
+  -from string
+        file to read from
+  -limit int
+        block size to copy (default -1)
+  -offset int
+        offset in input file (should be >= 0)
+  -to string
+        file to write to
+  -v    verbosity mode
+```
+## Build
 ### make goals
 |Goal|Description|
 |----|-----------|
@@ -11,3 +25,4 @@
 |mod-refresh|run `go mod tidy` and `go mod vendor`|
 |ci|run all steps needed for CI|
 |version|show current git tag if any matched to `v*` exists|
+|release|set git tag and push to repo `make release ver=v1.2.3`|
