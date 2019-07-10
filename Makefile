@@ -10,9 +10,7 @@ BIN=bin/$(PROJECTNAME)$(GOEXE)
 .PHONY: setup
 setup: mod-refresh ## Install all the build and lint dependencies
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint \
-	golang.org/x/tools/cmd/cover \
-	github.com/kisielk/errcheck \
-    github.com/fzipp/gocyclo
+	golang.org/x/tools/cmd/cover
 
 .PHONY: test
 test: ## Run all the tests
@@ -20,9 +18,8 @@ test: ## Run all the tests
 
 .PHONY: lint
 lint: ## Run all the linters
-	golangci-lint run ./...
-	gocyclo -over 15 ./...
-	errcheck ./...
+	golangci-lint run --enable-all --disable gochecknoinits --disable gochecknoglobals --disable goimports \
+	--out-format=tab --tests=false ./...
 
 .PHONY: ci
 ci: setup lint test build ## Run all the tests and code checks

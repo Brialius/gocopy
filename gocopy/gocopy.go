@@ -99,7 +99,7 @@ func validate(limit, inputSize, offset int64) error {
 	case offset < 0:
 		return fmt.Errorf("offset parameter is: %d, but should be >= 0", offset)
 	case offset >= inputSize:
-		return fmt.Errorf("offset (%d) is greater or equal input file size (%d)\n", offset, inputSize)
+		return fmt.Errorf("offset (%d) is greater or equal input file size (%d)", offset, inputSize)
 	}
 	return nil
 }
