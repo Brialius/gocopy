@@ -51,12 +51,11 @@ func main() {
 	log.Printf("gocopy %s-%s", Version, Build)
 	flag.Parse()
 	if err := validateArgs(args); err != nil {
-		log.Printf("Args validation error: %s\n", err)
 		if args.Verbosity {
 			log.Printf("args: %#v\n", args)
 		}
 		flag.Usage()
-		os.Exit(1)
+		log.Fatalf("Args validation error: %s\n", err)
 	}
 
 	if err := gocopy.Copy(args.From, args.To, args.Offset, args.Limit); err != nil {

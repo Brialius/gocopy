@@ -16,10 +16,10 @@ func Copy(srcPath, dstPath string, offset, limit int64) error {
 		inputSize int64
 	)
 
-	if stat, err := os.Stat(srcPath); err == nil {
-		inputSize = stat.Size()
-	} else {
+	if stat, err := os.Stat(srcPath); err != nil {
 		return fmt.Errorf("input file can't be opened: %s", err)
+	} else {
+		inputSize = stat.Size()
 	}
 
 	if limit == -1 {
