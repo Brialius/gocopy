@@ -10,8 +10,10 @@ import (
 )
 
 func Copy(srcPath, dstPath string, offset, limit int64) error {
-	var src, dst *os.File
-	var inputSize int64
+	var (
+		src, dst  *os.File
+		inputSize int64
+	)
 
 	if stat, err := os.Stat(srcPath); err == nil {
 		inputSize = stat.Size()
@@ -38,19 +40,32 @@ func Copy(srcPath, dstPath string, offset, limit int64) error {
 		}
 	}()
 
-	if _, err := src.Seek(offset, io.SeekStart); err != nil {
-		return err
-	}
-
 	dst, err = os.Create(dstPath)
 	if err != nil {
 		return err
 	}
 
-	buf := make([]byte, 1024*64) // 64kb
-	var written int64
-	err = nil
-	bar := pb.StartNew(int(limit))
+	_, errRes := copyNWithOffset(src, dst, limit, offset)
+
+	if err := dst.Close(); err != nil {
+		log.Fatalln(err)
+	}
+	return errRes
+}
+
+func copyNWithOffset(src io.ReadSeeker, dst io.Writer, n, offset int64) (int64, error) {
+	var (
+		written int64
+		errRes  error
+	)
+	// 64kb
+	buf := make([]byte, 1024*64)
+
+	if _, err := src.Seek(offset, io.SeekStart); err != nil {
+		return 0, err
+	}
+
+	bar := pb.StartNew(int(n))
 	bar.Set(pb.Bytes, true)
 	bar.Start()
 
@@ -63,29 +78,24 @@ func Copy(srcPath, dstPath string, offset, limit int64) error {
 				bar.Add(nw)
 			}
 			if ew != nil {
-				err = ew
+				errRes = ew
 				break
 			}
 			if nr != nw {
-				err = io.ErrShortWrite
+				errRes = io.ErrShortWrite
 				break
 			}
 		}
 		if er != nil {
 			if er != io.EOF {
-				err = er
+				errRes = er
 			}
 			break
 		}
 	}
 
 	bar.Finish()
-
-	if err := dst.Close(); err != nil {
-		log.Fatalln(err)
-	}
-
-	return err
+	return written, errRes
 }
 
 func validate(limit, inputSize, offset int64) error {
