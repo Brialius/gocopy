@@ -9,8 +9,7 @@ BIN=bin/$(PROJECTNAME)$(GOEXE)
 
 .PHONY: setup
 setup: ## Install all the build and lint dependencies
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint \
-	golang.org/x/tools/cmd/cover
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
 .PHONY: test
 test: ## Run all the tests
@@ -22,14 +21,14 @@ lint: ## Run all the linters
 	--out-format=tab --tests=false ./...
 
 .PHONY: ci
-ci: setup mod-refresh lint test build ## Run all the tests and code checks
+ci: setup lint test build ## Run all the tests and code checks
 
 .PHONY: build
-build: ## Build a version
+build: mod-refresh ## Build a version
 	go build $(BUILDFLAGS) -o $(BIN)
 
 .PHONY: install
-install: ## Install a binary
+install: mod-refresh ## Install a binary
 	go install $(BUILDFLAGS)
 
 .PHONY: clean
@@ -44,5 +43,10 @@ mod-refresh: clean ## Refresh modules
 .PHONY: version
 version:
 	@echo $(VERSION)-$(BUILD)
+
+.PHONY: release
+release:
+	git tag $(ver)
+	git push origin --tags
 
 .DEFAULT_GOAL := build
