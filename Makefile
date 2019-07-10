@@ -38,7 +38,7 @@ clean: ## Remove temporary files
 
 .PHONY: mod-refresh
 mod-refresh: clean ## Refresh modules
-	go mod tidy
+	go mod tidy -v
 	go mod vendor
 
 .PHONY: version
