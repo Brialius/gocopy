@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-// Args is a structure to store command parsed line parameters
+// Args is a structure to store command line parsed parameters
 type Args struct {
 	From      string
 	To        string
