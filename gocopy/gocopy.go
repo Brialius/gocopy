@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// Copy is a function to copy section of file (or whole file) to another place with progress bar
 func Copy(srcPath, dstPath string, offset, limit int64) error {
 	var (
 		src, dst  *os.File
