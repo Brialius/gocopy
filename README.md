@@ -1,4 +1,5 @@
 # gocopy
+[![Go Report Card](https://goreportcard.com/badge/github.com/Brialius/gocopy)](https://goreportcard.com/report/github.com/Brialius/gocopy)
 ## Usage
 ```
 Usage of gocopy:

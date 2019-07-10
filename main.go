@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// Args is a structure to store command parsed line parameters
 type Args struct {
 	From      string
 	To        string
@@ -17,9 +18,11 @@ type Args struct {
 }
 
 var (
-	args    = Args{}
+	args = Args{}
+	// Version is a application version substituted from CI build
 	Version = "dev"
-	Build   = "local"
+	// Build is a git hash substituted from CI build
+	Build = "local"
 )
 
 func init() {
