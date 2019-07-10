@@ -8,7 +8,7 @@ GOEXE := $(shell go env GOEXE)
 BIN=bin/$(PROJECTNAME)$(GOEXE)
 
 .PHONY: setup
-setup: mod-refresh ## Install all the build and lint dependencies
+setup: ## Install all the build and lint dependencies
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint \
 	golang.org/x/tools/cmd/cover
 
@@ -22,7 +22,7 @@ lint: ## Run all the linters
 	--out-format=tab --tests=false ./...
 
 .PHONY: ci
-ci: setup lint test build ## Run all the tests and code checks
+ci: setup mod-refresh lint test build ## Run all the tests and code checks
 
 .PHONY: build
 build: ## Build a version
