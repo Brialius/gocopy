@@ -31,15 +31,15 @@ func init() {
 	flag.BoolVar(&args.Verbosity, "v", false, "verbosity mode")
 }
 
-func validateArgs() error {
+func validateArgs(a Args) error {
 	var inputSize int64
-	if len(args.From) == 0 || len(args.To) == 0 {
+	if len(a.From) == 0 || len(a.To) == 0 {
 		return errors.New("input or output file is not defined")
 	}
 
-	if args.Verbosity {
+	if a.Verbosity {
 		log.Printf("from: %s (size: %d), to: %s, offset: %d, limit: %d",
-			args.From, inputSize, args.To, args.Offset, args.Limit)
+			a.From, inputSize, a.To, a.Offset, a.Limit)
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func validateArgs() error {
 func main() {
 	log.Printf("gocopy %s-%s", Version, Build)
 	flag.Parse()
-	if err := validateArgs(); err != nil {
+	if err := validateArgs(args); err != nil {
 		log.Printf("Args validation error: %s\n", err)
 		if args.Verbosity {
 			log.Printf("args: %#v\n", args)
