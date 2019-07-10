@@ -94,12 +94,12 @@ func validate(limit, inputSize, offset int64) error {
 		return errors.New("input file is empty")
 	case limit <= 0:
 		return fmt.Errorf("limit parameter is: %d, but should be > 0", limit)
-	case (limit + offset) > inputSize:
-		return fmt.Errorf("limit + offset is greater sorurce size: %d > %d", limit+offset, inputSize)
 	case offset < 0:
 		return fmt.Errorf("offset parameter is: %d, but should be >= 0", offset)
 	case offset >= inputSize:
 		return fmt.Errorf("offset (%d) is greater or equal input file size (%d)", offset, inputSize)
+	case (limit + offset) > inputSize:
+		return fmt.Errorf("limit + offset is greater sorurce size: %d > %d", limit+offset, inputSize)
 	}
 	return nil
 }
